@@ -1,0 +1,22 @@
+{
+  "name": "breaking-casting-news",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.25.0",
+    "cheerio": "^1.0.0-rc.10",
+    "dotenv": "^14.3.2",
+    "express": "^4.17.2",
+    "lodash.sample": "^4.2.1",
+    "movies-names": "^1.1.1",
+    "wikijs": "^6.3.3"
+  }
+}
