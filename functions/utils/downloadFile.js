@@ -2,14 +2,14 @@ const fs = require("fs");
 const axios = require("axios");
 const { checkFileExists } = require("./checkFileExists");
 
-const downloadFile = async (url, downloadFolder, index) => {
+const downloadFile = async (url, downloadFolder, actor) => {
   const dirExists = await checkFileExists(downloadFolder);
 
   if (!dirExists) {
     fs.mkdirSync(downloadFolder);
   }
 
-  const fileName = `actor_${index}.jpg`;
+  const fileName = `${actor}.jpg`;
 
   try {
     const response = await axios({

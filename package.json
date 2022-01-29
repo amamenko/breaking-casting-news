@@ -17,6 +17,10 @@
     "express": "^4.17.2",
     "lodash.sample": "^4.2.1",
     "movies-names": "^1.1.1",
+    "puppeteer": "^13.1.2",
+    "puppeteer-extra": "^3.2.3",
+    "puppeteer-extra-plugin-stealth": "^2.9.0",
+    "wget-improved": "^3.2.1",
     "wikijs": "^6.3.3"
   }
 }

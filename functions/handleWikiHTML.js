@@ -33,10 +33,10 @@ const handleWikiHTML = (html) => {
               testCharName = testCharName.split("<")[0];
 
               if (testCharName) {
-                testCharName = testCharName.replace(
-                  /\([^)]*\)|\[[^\]]*\]/gim,
-                  ""
-                );
+                testCharName = testCharName
+                  .replace(/\([^)]*\)|\[[^\]]*\]/gim, "")
+                  .replace(`".`, "")
+                  .replace(/\s{2,}/g, " ");
 
                 if (testCharName) {
                   testCharName = testCharName.split(" - ")[0];

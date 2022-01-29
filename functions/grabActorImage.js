@@ -19,7 +19,11 @@ const grabActorImage = async (actor, i) => {
     results = results.filter((item) => !item.includes("logo"));
     const usedImageURL = results[0];
 
-    return await downloadFile(usedImageURL, "actor_images", i)
+    return await downloadFile(
+      usedImageURL,
+      "actor_images",
+      actor.replace(/\s/g, "_")
+    )
       .then(() => resolve())
       .catch((e) => reject());
   });
