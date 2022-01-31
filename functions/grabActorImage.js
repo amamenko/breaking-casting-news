@@ -1,9 +1,10 @@
+const fs = require("fs");
 const axios = require("axios");
 const cheerio = require("cheerio");
 const { delayExecution } = require("./utils/delayExecution");
 const { downloadFile } = require("./utils/downloadFile");
 
-const grabActorImage = async (actor, i) => {
+const grabActorImage = async (actor, character, i) => {
   const formattedActor = actor.toLowerCase().replace(" ", "+");
   const url = `https://www.google.com/search?q=${formattedActor}&tbm=isch&oq=${formattedActor}&sclient=img`;
 
@@ -24,7 +25,21 @@ const grabActorImage = async (actor, i) => {
       "actor_images",
       actor.replace(/\s/g, "_")
     )
-      .then(() => resolve())
+      .then(() => {
+        fs.writeFile(
+          "remake_data.txt",
+          `{"original_actor":"${actor}","character":"${character}"},`,
+          { flag: "a" },
+          (err) => {
+            if (err) {
+              console.error(err);
+              reject();
+            } else {
+              resolve();
+            }
+          }
+        );
+      })
       .catch((e) => reject());
   });
 };

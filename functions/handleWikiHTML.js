@@ -35,6 +35,7 @@ const handleWikiHTML = (html) => {
               if (testCharName) {
                 testCharName = testCharName
                   .replace(/\([^)]*\)|\[[^\]]*\]/gim, "")
+                  .replace(/ *\([^)]*\)*/gim, "")
                   .replace(`".`, "")
                   .replace(/\s{2,}/g, " ");
 
@@ -42,7 +43,7 @@ const handleWikiHTML = (html) => {
                   testCharName = testCharName.split(" - ")[0];
 
                   if (testCharName) {
-                    return testCharName.trim();
+                    return testCharName.replace(/"/gim, "'").trim();
                   }
                 }
               }

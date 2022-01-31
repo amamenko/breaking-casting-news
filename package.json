@@ -13,6 +13,7 @@
   "dependencies": {
     "axios": "^0.25.0",
     "cheerio": "^1.0.0-rc.10",
+    "csv-parser": "^3.0.0",
     "dotenv": "^14.3.2",
     "express": "^4.17.2",
     "lodash.sample": "^4.2.1",
@@ -21,6 +22,7 @@
     "puppeteer-extra": "^3.2.3",
     "puppeteer-extra-plugin-stealth": "^2.9.0",
     "wget-improved": "^3.2.1",
-    "wikijs": "^6.3.3"
+    "wikijs": "^6.3.3",
+    "wikipediadeadoralive": "^1.0.5"
   }
 }

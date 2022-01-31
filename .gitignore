@@ -9,6 +9,8 @@
 /build
 
 /actor_images
+/doppelganger_images
+remake_data.txt
 
 # misc
 .DS_Store

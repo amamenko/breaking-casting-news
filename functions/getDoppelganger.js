@@ -1,15 +1,17 @@
 const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const axios = require("axios");
+const wikipediaDeadOrAlive = require("wikipediadeadoralive");
 const sample = require("lodash.sample");
 const { downloadFile } = require("./utils/downloadFile");
 const { delayExecution } = require("./utils/delayExecution");
+const { removeLowercase } = require("./utils/removeLowercase");
 const { exec } = require("child_process");
 require("dotenv").config();
 
 puppeteer.use(StealthPlugin());
 
-const getDoppelganger = async (fileName, fullName, i) => {
+const getDoppelganger = async (remakeJSON, fileName, fullName, i) => {
   return new Promise(async (resolve, reject) => {
     // Kill all leftover Puppeteer processes
     exec("pkill -9 -f puppeteer");
@@ -51,10 +53,7 @@ const getDoppelganger = async (fileName, fullName, i) => {
 
       for (const target of list) {
         const innerHTML = await page.evaluate((el) => el.innerHTML, target);
-        const name = await page.evaluate(
-          (el) => el.getAttribute("name"),
-          target
-        );
+        let name = await page.evaluate((el) => el.getAttribute("name"), target);
 
         let splitInnerHTML = innerHTML.split("\n");
         splitInnerHTML = splitInnerHTML.filter((item) =>
@@ -66,6 +65,8 @@ const getDoppelganger = async (fileName, fullName, i) => {
         if (imgTag) {
           let imgSplit = imgTag.split(/src="(.*?)"/gim);
           imgSplit = imgSplit.filter((item) => item.includes(".com"));
+
+          name = removeLowercase(name);
 
           if (imgSplit[0]) {
             fullListArr.push({
@@ -123,6 +124,8 @@ const getDoppelganger = async (fileName, fullName, i) => {
     }
 
     chosenArr = chosenArr.filter((item) => item.name !== fullName);
+    // Choose from top 3 closest matches
+    chosenArr = chosenArr.slice(0, 3);
     const randomDoppelganger = sample(chosenArr);
 
     await browser.close();
@@ -133,7 +136,51 @@ const getDoppelganger = async (fileName, fullName, i) => {
         "doppelganger_images",
         randomDoppelganger.name.replace(/\s/g, "_")
       )
-        .then(() => resolve())
+        .then(async () => {
+          const foundEntry = remakeJSON.find(
+            (item) => item.original_actor === fullName
+          );
+
+          foundEntry.new_actor = randomDoppelganger.name;
+          foundEntry.new_image = `doppelganger_images/${randomDoppelganger.name.replace(
+            /\s/g,
+            "_"
+          )}.jpg`;
+
+          if (foundEntry) {
+            try {
+              const deadOrAliveResult = await wikipediaDeadOrAlive.getStatus(
+                randomDoppelganger.name.replace(/\s/g, "_")
+              );
+
+              if (deadOrAliveResult) {
+                if (deadOrAliveResult.dead) {
+                  foundEntry.new_actor_dead = deadOrAliveResult.dead;
+                } else {
+                  foundEntry.new_actor_dead = false;
+                }
+
+                if (deadOrAliveResult.died) {
+                  foundEntry.new_actor_death_year = deadOrAliveResult.died
+                    ? deadOrAliveResult.died.replace(/\D/g, "")
+                    : "";
+                }
+              } else {
+                foundEntry.new_actor_dead = false;
+              }
+
+              resolve();
+            } catch (e) {
+              console.error(e);
+              foundEntry.new_actor_dead = false;
+              reject();
+            }
+
+            resolve();
+          } else {
+            reject();
+          }
+        })
         .catch((e) => {
           console.error(e);
           reject();

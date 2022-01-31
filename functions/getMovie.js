@@ -1,7 +1,7 @@
 const moviesNames = require("movies-names");
 const sample = require("lodash.sample");
 
-const getMovies = () => {
+const getMovie = () => {
   let allMovies = moviesNames.all;
   allMovies = allMovies.filter(
     (movie) =>
@@ -15,4 +15,4 @@ const getMovies = () => {
   return foundMovie;
 };
 
-module.exports = { getMovies };
+module.exports = { getMovie };
