@@ -81,12 +81,6 @@ const createPost = async () => {
               // Delay necessary to make sure that all images are in doppelganger_images directory
               await delayExecution(15000);
 
-              const doppelgangerFilesArr = [];
-
-              fs.readdirSync("doppelganger_images").forEach((file) => {
-                doppelgangerFilesArr.push(file);
-              });
-
               const foundDoppelgangers = remakeJSON.filter(
                 (item) => item.new_actor
               );

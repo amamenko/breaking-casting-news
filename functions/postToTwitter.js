@@ -1,4 +1,6 @@
 const sample = require("lodash.sample");
+const { TwitterApi } = require("twitter-api-v2");
+const fs = require("fs");
 
 const postToTwitter = async (
   foundMovie,
@@ -61,9 +63,6 @@ const postToTwitter = async (
     }
   }
 
-  console.log({ tweet, tweetLength: tweet.length });
-  console.log({ doppelgangersArr });
-
   const apologyArr = [];
 
   for (let i = 0; i < doppelgangersArr.length; i++) {
@@ -93,7 +92,51 @@ const postToTwitter = async (
     }
   }
 
-  console.log({ apologyArr });
+  if (apologyArr.length === doppelgangersArr.length) {
+    // All doppelgangers are, in fact, no longer alive to play their parts
+    apologyArr.push("Oh geez, they're all dead.");
+  }
+
+  const client = new TwitterApi({
+    appKey: process.env.TWITTER_API_KEY,
+    appSecret: process.env.TWITTER_API_KEY_SECRET,
+    accessToken: process.env.TWITTER_ACCESS_TOKEN,
+    accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
+  });
+
+  if (client) {
+    const doppelgangerFilesArr = [];
+
+    fs.readdirSync("doppelganger_images").forEach((file) => {
+      doppelgangerFilesArr.push("../doppelganger_images/" + file);
+    });
+
+    if (doppelgangerFilesArr.length > 0) {
+      const promiseArr = [];
+
+      for (const file of doppelgangerFilesArr) {
+        promiseArr.push(client.v1.uploadMedia(file));
+      }
+
+      // First, post all images to Twitter
+      const mediaIds = await Promise.all(promiseArr);
+
+      await client.v2
+        .tweetThread([
+          {
+            text: tweet,
+            media: { media_ids: mediaIds },
+          },
+          ...apologyArr,
+        ])
+        .then(() => {
+          console.log("Successfully posted breaking casting news to Twitter!");
+        });
+    }
+  } else {
+    console.log("No doppelganger images found! Can't make post!");
+    return;
+  }
 };
 
 module.exports = { postToTwitter };
