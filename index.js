@@ -15,7 +15,7 @@ const client = new TwitterApi({
   accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
 });
 
-cron.schedule("0,*/7 14-15 * * *", async () => {
+cron.schedule("0,*/9 14-16 * * *", async () => {
   const tweetsOfBCN = await client.v2.userTimeline("1488719370692050944", {
     exclude: "replies",
     "tweet.fields": ["created_at"],
