@@ -1,7 +1,7 @@
 const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const axios = require("axios");
-const wikipediaDeadOrAlive = require("wikipediadeadoralive");
+const { aliveOrDead } = require("./aliveOrDead");
 const sample = require("lodash.sample");
 const { downloadFile } = require("./utils/downloadFile");
 const { delayExecution } = require("./utils/delayExecution");
@@ -142,28 +142,38 @@ const getDoppelganger = async (remakeJSON, fileName, fullName, i) => {
           );
 
           foundEntry.new_actor = randomDoppelganger.name;
-          foundEntry.new_image = `doppelganger_images/${randomDoppelganger.name.replace(
+          foundEntry.new_image = `${randomDoppelganger.name.replace(
             /\s/g,
             "_"
           )}.jpg`;
 
           if (foundEntry) {
             try {
-              const deadOrAliveResult = await wikipediaDeadOrAlive.getStatus(
-                randomDoppelganger.name.replace(/\s/g, "_")
+              const deadOrAliveResult = await aliveOrDead(
+                randomDoppelganger.name
               );
 
               if (deadOrAliveResult) {
-                if (deadOrAliveResult.dead) {
-                  foundEntry.new_actor_dead = deadOrAliveResult.dead;
+                if (deadOrAliveResult.deathDate) {
+                  foundEntry.new_actor_dead = true;
+                  foundEntry.new_actor_death_year = deadOrAliveResult.deathDate
+                    ? deadOrAliveResult.deathDate.replace(/\D/g, "")
+                    : "";
                 } else {
                   foundEntry.new_actor_dead = false;
                 }
 
-                if (deadOrAliveResult.died) {
-                  foundEntry.new_actor_death_year = deadOrAliveResult.died
-                    ? deadOrAliveResult.died.replace(/\D/g, "")
-                    : "";
+                if (deadOrAliveResult.deathAge) {
+                  foundEntry.new_actor_death_age = deadOrAliveResult.deathAge;
+                } else {
+                  foundEntry.new_actor_death_age = "";
+                }
+
+                if (deadOrAliveResult.deathCause) {
+                  foundEntry.new_actor_death_cause =
+                    deadOrAliveResult.deathCause;
+                } else {
+                  foundEntry.new_actor_death_cause = "";
                 }
               } else {
                 foundEntry.new_actor_dead = false;

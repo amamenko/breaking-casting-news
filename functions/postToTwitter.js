@@ -1,6 +1,7 @@
+const fs = require("fs");
 const sample = require("lodash.sample");
 const { TwitterApi } = require("twitter-api-v2");
-const fs = require("fs");
+const { checkExistsAndDelete } = require("./utils/checkExistsAndDelete");
 
 const postToTwitter = async (
   foundMovie,
@@ -85,7 +86,15 @@ const postToTwitter = async (
         current.new_actor
       } had died${
         current.new_actor_death_year
-          ? ` in ${current.new_actor_death_year}.`
+          ? ` in ${current.new_actor_death_year}${
+              current.new_actor_death_age
+                ? ` at the age of ${current.new_actor_death_age}`
+                : ""
+            }${
+              current.new_actor_death_cause
+                ? ` due to ${current.new_actor_death_cause}`
+                : ""
+            }.`
           : "."
       }"`;
       apologyArr.push(apologyStatement);
@@ -94,7 +103,9 @@ const postToTwitter = async (
 
   if (apologyArr.length === doppelgangersArr.length) {
     // All doppelgangers are, in fact, no longer alive to play their parts
-    apologyArr.push("Oh geez, they're all dead.");
+    apologyArr.push(
+      `Oh geez, they're ${apologyArr.length === 2 ? "both" : "all"} dead.`
+    );
   }
 
   const client = new TwitterApi({
@@ -107,9 +118,11 @@ const postToTwitter = async (
   if (client) {
     const doppelgangerFilesArr = [];
 
-    fs.readdirSync("doppelganger_images").forEach((file) => {
-      doppelgangerFilesArr.push("../doppelganger_images/" + file);
-    });
+    for (const doppelganger of doppelgangersArr) {
+      doppelgangerFilesArr.push(
+        "./doppelganger_images/" + doppelganger.new_image
+      );
+    }
 
     if (doppelgangerFilesArr.length > 0) {
       const promiseArr = [];
@@ -129,12 +142,23 @@ const postToTwitter = async (
           },
           ...apologyArr,
         ])
-        .then(() => {
+        .then(async () => {
           console.log("Successfully posted breaking casting news to Twitter!");
+          await checkExistsAndDelete("actor_images");
+          await checkExistsAndDelete("doppelganger_images");
+        })
+        .catch(async (e) => {
+          console.error(
+            "Something went wrong when trying to post Twitter thread!"
+          );
+          await checkExistsAndDelete("actor_images");
+          await checkExistsAndDelete("doppelganger_images");
         });
     }
   } else {
     console.log("No doppelganger images found! Can't make post!");
+    await checkExistsAndDelete("actor_images");
+    await checkExistsAndDelete("doppelganger_images");
     return;
   }
 };

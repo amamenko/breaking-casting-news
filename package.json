@@ -25,7 +25,6 @@
     "puppeteer-extra-plugin-stealth": "^2.9.0",
     "twitter-api-v2": "^1.10.0",
     "wget-improved": "^3.2.1",
-    "wikijs": "^6.3.3",
-    "wikipediadeadoralive": "^1.0.5"
+    "wikijs": "^6.3.3"
   }
 }

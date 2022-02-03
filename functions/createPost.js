@@ -9,6 +9,11 @@ const { checkExistsAndDelete } = require("./utils/checkExistsAndDelete");
 const { postToTwitter } = require("./postToTwitter");
 
 const createPost = async () => {
+  // Make sure no trailing files or directories exist
+  await checkExistsAndDelete("remake_data.txt");
+  await checkExistsAndDelete("actor_images");
+  await checkExistsAndDelete("doppelganger_images");
+
   const foundMovie = getMovie();
   let actorsCharNames = await getCharactersFromWiki(foundMovie);
 

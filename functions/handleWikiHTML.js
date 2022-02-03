@@ -3,7 +3,14 @@ const handleWikiHTML = (html) => {
   const sectionAfter = castSection[1];
 
   if (sectionAfter) {
-    const listSection = sectionAfter.split("<ul>")[1];
+    let listSection = sectionAfter.split(/<ul>/gim)[1];
+
+    const sectionSplit = listSection.split(/<li>/).filter((item) => item);
+
+    if (sectionSplit.length === 1) {
+      listSection =
+        listSection + sectionAfter.split(/<ul>/gim)[2].replace("</ul>", "");
+    }
 
     if (listSection) {
       const closeList = listSection.split("</ul>")[0];
