@@ -15,7 +15,7 @@ const client = new TwitterApi({
   accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
 });
 
-cron.schedule("0,*/7 14-16 * * *", async () => {
+cron.schedule("0,*/7 14-15 * * *", async () => {
   const tweetsOfBCN = await client.v2.userTimeline("1488719370692050944", {
     exclude: "replies",
     "tweet.fields": ["created_at"],
@@ -28,6 +28,7 @@ cron.schedule("0,*/7 14-16 * * *", async () => {
 
         if (mostRecentTweet) {
           if (isToday(parseISO(mostRecentTweet.created_at))) {
+            console.log("Already posted today!");
             return;
           } else {
             console.log(
@@ -36,6 +37,8 @@ cron.schedule("0,*/7 14-16 * * *", async () => {
             createPost();
           }
         }
+      } else {
+        createPost();
       }
     }
   }
