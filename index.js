@@ -4,7 +4,6 @@ const { createPost } = require("./functions/createPost");
 const { TwitterApi } = require("twitter-api-v2");
 const { isToday, parseISO } = require("date-fns");
 const cron = require("node-cron");
-const { aliveOrDead } = require("./functions/aliveOrDead");
 require("dotenv").config();
 
 const port = process.env.PORT || 4000;
