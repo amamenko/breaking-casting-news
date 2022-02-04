@@ -4,6 +4,7 @@ const { createPost } = require("./functions/createPost");
 const { TwitterApi } = require("twitter-api-v2");
 const { isToday, parseISO } = require("date-fns");
 const cron = require("node-cron");
+const { aliveOrDead } = require("./functions/aliveOrDead");
 require("dotenv").config();
 
 const port = process.env.PORT || 4000;
@@ -15,7 +16,8 @@ const client = new TwitterApi({
   accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
 });
 
-cron.schedule("0,*/9 14-16 * * *", async () => {
+// Try to post every 10 minutes between 2 PM - 4 PM
+cron.schedule("0,*/10 14-15 * * *", async () => {
   const tweetsOfBCN = await client.v2.userTimeline("1488719370692050944", {
     exclude: "replies",
     "tweet.fields": ["created_at"],
