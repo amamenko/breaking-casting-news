@@ -42,13 +42,13 @@ const postToTwitter = async (
 
   const asArr = makeSentenceArrFromArr(doppelgangersArr);
 
-  let tweet = `${
+  let tweet = `#BreakingNews ${
     randomMovieStudio.name
   } has announced a ${randomYear} remake of the ${
     movieGenre.length === 0 ? "" : movieGenre.join("/")
   } film "${movieTite}" (${movieYear}) starring `;
 
-  tweet = tweet + asArr.join(" ");
+  tweet = tweet + asArr.join(" ") + "\n\n#movies #film";
 
   if (tweet.length > 280) {
     doppelgangersArr.pop();
@@ -60,7 +60,7 @@ const postToTwitter = async (
       return;
     } else {
       const newAsArr = makeSentenceArrFromArr(doppelgangersArr);
-      tweet = tweet + newAsArr.join(" ");
+      tweet = tweet + newAsArr.join(" ") + "\n\n#movies #film";
     }
   }
 
