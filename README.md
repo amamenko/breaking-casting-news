@@ -12,7 +12,7 @@
   </a>
   <h3 align="center" height="50">Breaking Casting News</h3>
   <p align="center">
-    A (Fake) Movie Casting News Twitter Account
+    Fake Movie Casting News Twitter Account
     <br />
     Automated with Node.js
     <br />
