@@ -12,9 +12,9 @@
   </a>
   <h3 align="center" height="50">Breaking Casting News</h3>
   <p align="center">
-    Fake Movie Casting News Twitter Account
+    Movie Remake Casting Announcement
     <br />
-    Automated with Node.js
+    Twitter Bot Automated with Node.js
     <br />
     <br />
     <a href="https://twitter.com/BreakingCasting">View Twitter</a>
