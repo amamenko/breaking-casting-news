@@ -18,136 +18,147 @@ const getDoppelganger = async (remakeJSON, fileName, fullName, i) => {
 
     await delayExecution(i * 60000);
 
-    const browser = await puppeteer.launch({
-      args: [
-        "--disable-setuid-sandbox",
-        "--single-process",
-        "--no-sandbox",
-        "--no-zygote",
-      ],
-    });
-    const page = await browser.newPage();
-    page.setDefaultNavigationTimeout(0);
+    const foundEntry = remakeJSON.find(
+      (item) => item.original_actor === fullName
+    );
 
-    page.on("error", (err) => {
-      reject();
-    });
+    if (foundEntry) {
+      const browser = await puppeteer.launch({
+        args: [
+          "--disable-setuid-sandbox",
+          "--single-process",
+          "--no-sandbox",
+          "--no-zygote",
+        ],
+      });
+      const page = await browser.newPage();
+      page.setDefaultNavigationTimeout(0);
 
-    await page.goto("https://starbyface.com", {
-      waitUntil: "networkidle2",
-    });
+      page.on("error", (err) => {
+        reject();
+      });
 
-    await page.waitForTimeout(5000);
+      await page.goto("https://starbyface.com", {
+        waitUntil: "networkidle2",
+      });
 
-    await page.click("button[mode=primary]");
+      await page.waitForTimeout(5000);
 
-    const uploadEl = await page.$("input[type=file]");
-    await uploadEl.uploadFile(fileName);
-    await page.waitForTimeout(30000);
+      await page.click("button[mode=primary]");
 
-    const maleList = await page.$$("div[id=candidates] > div[name]");
-    const femaleList = await page.$$("div[id=candidatesFemale] > div[name]");
+      const uploadEl = await page.$("input[type=file]");
+      await uploadEl.uploadFile(fileName);
+      await page.waitForTimeout(30000);
 
-    const getNameAndImage = async (list) => {
-      const fullListArr = [];
+      const maleList = await page.$$("div[id=candidates] > div[name]");
+      const femaleList = await page.$$("div[id=candidatesFemale] > div[name]");
 
-      for (const target of list) {
-        const innerHTML = await page.evaluate((el) => el.innerHTML, target);
-        let name = await page.evaluate((el) => el.getAttribute("name"), target);
+      const getNameAndImage = async (list) => {
+        const fullListArr = [];
 
-        let splitInnerHTML = innerHTML.split("\n");
-        splitInnerHTML = splitInnerHTML.filter((item) =>
-          item.includes("<img ")
-        );
+        for (const target of list) {
+          const innerHTML = await page.evaluate((el) => el.innerHTML, target);
+          let name = await page.evaluate(
+            (el) => el.getAttribute("name"),
+            target
+          );
 
-        const imgTag = splitInnerHTML[0];
+          let splitInnerHTML = innerHTML.split("\n");
+          splitInnerHTML = splitInnerHTML.filter((item) =>
+            item.includes("<img ")
+          );
 
-        if (imgTag) {
-          let imgSplit = imgTag.split(/src="(.*?)"/gim);
-          imgSplit = imgSplit.filter((item) => item.includes(".com"));
+          const imgTag = splitInnerHTML[0];
 
-          name = removeLowercase(name);
+          if (imgTag) {
+            let imgSplit = imgTag.split(/src="(.*?)"/gim);
+            imgSplit = imgSplit.filter((item) => item.includes(".com"));
 
-          if (imgSplit[0]) {
-            fullListArr.push({
-              name,
-              image: imgSplit[0],
-            });
+            name = removeLowercase(name);
+
+            if (imgSplit[0]) {
+              fullListArr.push({
+                name,
+                image: imgSplit[0],
+              });
+            }
           }
         }
-      }
 
-      return fullListArr;
-    };
+        return fullListArr;
+      };
 
-    const matchedMales = await getNameAndImage(maleList);
-    const matchedFemales = await getNameAndImage(femaleList);
+      const matchedMales = await getNameAndImage(maleList);
+      const matchedFemales = await getNameAndImage(femaleList);
 
-    const firstName = fullName.split(" ")[0];
-    const genderOfFirstName = await axios(
-      `https://api.genderize.io/?name=${firstName}`
-    )
-      .then((res) => res.data)
-      .then((data) => data.gender);
+      const originalActorGender = foundEntry.original_actor_gender;
+      const firstName = fullName.split(" ")[0];
 
-    let chosenArr = [];
+      let genderOfFirstName = "";
 
-    if (genderOfFirstName === "male") {
-      if (matchedMales[0]) {
-        chosenArr = matchedMales;
+      if (originalActorGender) {
+        genderOfFirstName = originalActorGender;
       } else {
-        chosenArr = matchedFemales;
+        genderOfFirstName = await axios(
+          `https://api.genderize.io/?name=${firstName}`
+        )
+          .then((res) => res.data)
+          .then((data) => data.gender);
       }
-    } else if (genderOfFirstName === "female") {
-      if (matchedFemales[0]) {
-        chosenArr = matchedFemales;
-      } else {
-        chosenArr = matchedMales;
-      }
-    } else {
-      const genderArr = ["male", "female"];
-      const randomGender = sample(genderArr);
 
-      if (randomGender === "male") {
+      let chosenArr = [];
+
+      if (genderOfFirstName === "male") {
         if (matchedMales[0]) {
           chosenArr = matchedMales;
         } else {
           chosenArr = matchedFemales;
         }
-      } else {
+      } else if (genderOfFirstName === "female") {
         if (matchedFemales[0]) {
           chosenArr = matchedFemales;
         } else {
           chosenArr = matchedMales;
         }
+      } else {
+        const genderArr = ["male", "female"];
+        const randomGender = sample(genderArr);
+
+        if (randomGender === "male") {
+          if (matchedMales[0]) {
+            chosenArr = matchedMales;
+          } else {
+            chosenArr = matchedFemales;
+          }
+        } else {
+          if (matchedFemales[0]) {
+            chosenArr = matchedFemales;
+          } else {
+            chosenArr = matchedMales;
+          }
+        }
       }
-    }
 
-    chosenArr = chosenArr.filter((item) => item.name !== fullName);
-    // Choose from top 3 closest matches
-    chosenArr = chosenArr.slice(0, 3);
-    const randomDoppelganger = sample(chosenArr);
+      chosenArr = chosenArr.filter((item) => item.name !== fullName);
+      // Choose from top 3 closest matches
+      chosenArr = chosenArr.slice(0, 3);
+      const randomDoppelganger = sample(chosenArr);
 
-    await browser.close();
+      await browser.close();
 
-    if (randomDoppelganger) {
-      return await downloadFile(
-        randomDoppelganger.image,
-        "doppelganger_images",
-        randomDoppelganger.name.replace(/\s/g, "_")
-      )
-        .then(async () => {
-          const foundEntry = remakeJSON.find(
-            (item) => item.original_actor === fullName
-          );
+      if (randomDoppelganger) {
+        return await downloadFile(
+          randomDoppelganger.image,
+          "doppelganger_images",
+          randomDoppelganger.name.replace(/\s/g, "_")
+        )
+          .then(async () => {
+            foundEntry.new_actor = randomDoppelganger.name;
+            foundEntry.new_image = `${randomDoppelganger.name.replace(
+              /\s/g,
+              "_"
+            )}.jpg`;
 
-          foundEntry.new_actor = randomDoppelganger.name;
-          foundEntry.new_image = `${randomDoppelganger.name.replace(
-            /\s/g,
-            "_"
-          )}.jpg`;
-
-          if (foundEntry) {
             try {
               const deadOrAliveResult = await aliveOrDead(
                 randomDoppelganger.name
@@ -187,16 +198,17 @@ const getDoppelganger = async (remakeJSON, fileName, fullName, i) => {
             }
 
             resolve();
-          } else {
+          })
+          .catch((e) => {
+            console.error(e);
             reject();
-          }
-        })
-        .catch((e) => {
-          console.error(e);
-          reject();
-        });
+          });
+      } else {
+        console.log(`No doppelganger found for actor ${fullName}.`);
+        reject();
+      }
     } else {
-      console.log(`No doppelganger found for actor ${fullName}.`);
+      console.log(`No matching found entry was found!`);
       reject();
     }
   });

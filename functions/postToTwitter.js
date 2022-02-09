@@ -2,13 +2,14 @@ const fs = require("fs");
 const sample = require("lodash.sample");
 const { TwitterApi } = require("twitter-api-v2");
 const { checkExistsAndDelete } = require("./utils/checkExistsAndDelete");
+const { generateRemakeImage } = require("./generateRemakeImage");
 
 const postToTwitter = async (
   foundMovie,
   foundDoppelgangers,
   movieStudiosArr
 ) => {
-  const movieTite = foundMovie.title;
+  const movieTitle = foundMovie.title;
   const movieYear = foundMovie.year;
   const movieGenre = foundMovie.genres
     ? foundMovie.genres.slice(0, 2).map((genre) => genre.toLowerCase())
@@ -46,7 +47,7 @@ const postToTwitter = async (
     randomMovieStudio.name
   } has announced a ${randomYear} remake of the ${
     movieGenre.length === 0 ? "" : movieGenre.join("/")
-  } film "${movieTite}" (${movieYear}) starring `;
+  } film "${movieTitle}" (${movieYear}) starring `;
 
   tweet = tweet + asArr.join(" ") + "\n\n#movies #film";
 
@@ -82,7 +83,7 @@ const postToTwitter = async (
         randomMovieStudio.name
       } has released a statement: “We apologize to the family of ${
         current.new_actor
-      }. We were unaware at the time we were casting the '${movieTite}' remake that ${
+      }. We were unaware at the time we were casting the '${movieTitle}' remake that ${
         current.new_actor
       } had died${
         current.new_actor_death_year
@@ -125,40 +126,77 @@ const postToTwitter = async (
     }
 
     if (doppelgangerFilesArr.length > 0) {
-      const promiseArr = [];
+      const allImagePromises = [];
 
-      for (const file of doppelgangerFilesArr) {
-        promiseArr.push(client.v1.uploadMedia(file));
+      for (let i = 0; i < doppelgangersArr.length; i++) {
+        const current = doppelgangersArr[i];
+
+        const currentPromise = generateRemakeImage(
+          movieTitle,
+          movieYear,
+          current.character,
+          current.original_actor,
+          "./actor_images/" + current.original_image,
+          current.new_actor,
+          "./doppelganger_images/" + current.new_image,
+          i
+        );
+
+        allImagePromises.push(currentPromise);
       }
 
-      // First, post all images to Twitter
-      const mediaIds = await Promise.all(promiseArr);
+      Promise.all(allImagePromises.map((p) => p.catch((error) => null))).then(
+        async () => {
+          console.log("All Twitter remake images have been created!");
 
-      await client.v2
-        .tweetThread([
-          {
-            text: tweet,
-            media: { media_ids: mediaIds },
-          },
-          ...apologyArr,
-        ])
-        .then(async () => {
-          console.log("Successfully posted breaking casting news to Twitter!");
-          await checkExistsAndDelete("actor_images");
-          await checkExistsAndDelete("doppelganger_images");
-        })
-        .catch(async (e) => {
-          console.error(
-            "Something went wrong when trying to post Twitter thread!"
-          );
-          await checkExistsAndDelete("actor_images");
-          await checkExistsAndDelete("doppelganger_images");
-        });
+          const filesArr = [];
+
+          fs.readdirSync("remake_images").forEach((file) => {
+            filesArr.push("./remake_images/" + file);
+          });
+
+          const promiseArr = [];
+
+          for (const file of filesArr) {
+            promiseArr.push(client.v1.uploadMedia(file));
+          }
+
+          // First, post all images to Twitter
+          const mediaIds = await Promise.all(promiseArr);
+
+          await client.v2
+            .tweetThread([
+              {
+                text: tweet,
+                media: { media_ids: mediaIds },
+              },
+              ...apologyArr,
+            ])
+            .then(async () => {
+              console.log(
+                "Successfully posted breaking casting news to Twitter!"
+              );
+              await checkExistsAndDelete("actor_images");
+              await checkExistsAndDelete("doppelganger_images");
+              await checkExistsAndDelete("remake_images");
+            })
+            .catch(async (e) => {
+              console.error(
+                "Something went wrong when trying to post Twitter thread!"
+              );
+              await checkExistsAndDelete("actor_images");
+              await checkExistsAndDelete("doppelganger_images");
+              await checkExistsAndDelete("remake_images");
+            });
+        }
+      );
     }
   } else {
     console.log("No doppelganger images found! Can't make post!");
     await checkExistsAndDelete("actor_images");
     await checkExistsAndDelete("doppelganger_images");
+    await checkExistsAndDelete("remake_images");
+
     return;
   }
 };

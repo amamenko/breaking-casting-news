@@ -1,6 +1,11 @@
 const handleWikiHTML = (html) => {
-  const castSection = html.split('id="Cast"');
-  const sectionAfter = castSection[1];
+  let castSection = html.split('id="Cast"');
+  let sectionAfter = castSection[1];
+
+  if (!sectionAfter) {
+    castSection = html.split('id="Voice_cast"');
+    sectionAfter = castSection[1];
+  }
 
   if (sectionAfter) {
     let listSection = sectionAfter.split(/<ul>/gim)[1];
@@ -15,7 +20,7 @@ const handleWikiHTML = (html) => {
     if (listSection) {
       const closeList = listSection.split("</ul>")[0];
       const eachBullet = closeList.split("\n");
-      const castList = eachBullet.map((item) => {
+      let castList = eachBullet.map((item) => {
         const formattedItem = item
           .replace("<li>", "")
           .replace("</li>", "")
@@ -23,6 +28,16 @@ const handleWikiHTML = (html) => {
           .replace("</a>", "");
 
         return formattedItem;
+      });
+
+      castList = castList.map((item, i, arr) => {
+        const lastIsAs = item.trim().slice(item.trim().length - 3) === "as:";
+
+        if (lastIsAs) {
+          return item.replace(":", " ") + arr[i + 1].replace(":", " ");
+        } else {
+          return item;
+        }
       });
 
       const formatName = (name, type) => {
@@ -44,7 +59,8 @@ const handleWikiHTML = (html) => {
                   .replace(/\([^)]*\)|\[[^\]]*\]/gim, "")
                   .replace(/ *\([^)]*\)*/gim, "")
                   .replace(`".`, "")
-                  .replace(/\s{2,}/g, " ");
+                  .replace(/\s{2,}/g, " ")
+                  .replace(/\.$/g, "");
 
                 if (testCharName) {
                   testCharName = testCharName.split(" - ")[0];
@@ -79,7 +95,11 @@ const handleWikiHTML = (html) => {
       if (characterArr.length >= 4) {
         return characterArr.slice(0, 4);
       } else {
-        return "";
+        if (characterArr.length >= 2) {
+          return characterArr;
+        } else {
+          return "";
+        }
       }
     }
   }
