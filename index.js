@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const { createPost } = require("./functions/createPost");
 const { TwitterApi } = require("twitter-api-v2");
-const { isToday, parseISO } = require("date-fns");
+const { parseISO, subHours, compareAsc } = require("date-fns");
 const cron = require("node-cron");
 require("dotenv").config();
 
@@ -15,8 +15,8 @@ const client = new TwitterApi({
   accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
 });
 
-// Try to post every 10 minutes between 2 PM - 4 PM
-cron.schedule("0,*/10 14-15 * * *", async () => {
+// Try to post every 10 minutes past every 4th hour
+cron.schedule("*/10 */4 * * *", async () => {
   const tweetsOfBCN = await client.v2.userTimeline("1488719370692050944", {
     exclude: "replies",
     "tweet.fields": ["created_at"],
@@ -28,15 +28,24 @@ cron.schedule("0,*/10 14-15 * * *", async () => {
         const mostRecentTweet = tweetsOfBCN._realData.data[0];
 
         if (mostRecentTweet) {
-          if (isToday(parseISO(mostRecentTweet.created_at))) {
-            console.log("Already posted today!");
-            return;
-          } else {
+          const mostRecentTimePosted = parseISO(mostRecentTweet.created_at);
+          const twoHoursAgo = subHours(new Date(), 2);
+
+          // Returns -1 if tweet was made more than two hours ago and 1 if most recent tweet was made less than two hours ago
+          const comparison = compareAsc(mostRecentTimePosted, twoHoursAgo);
+
+          if (comparison === -1) {
             console.log(
-              "No tweet posted yet today! Attempting to create post..."
+              "No tweet posted yet in the last two hours! Attempting to create post..."
             );
             createPost();
+          } else {
+            console.log("Already posted in the last two hours!");
+            return;
           }
+        } else {
+          console.log("Couldn't find most recent tweet!");
+          return;
         }
       } else {
         createPost();

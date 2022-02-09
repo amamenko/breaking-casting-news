@@ -1,12 +1,11 @@
 const fs = require("fs");
 const csv = require("csv-parser");
-const { getCharactersFromWiki } = require("./getCharactersFromWiki");
 const { getDoppelganger } = require("./getDoppelganger");
-const { getMovie } = require("./getMovie");
 const { grabActorImage } = require("./grabActorImage");
 const { delayExecution } = require("./utils/delayExecution");
 const { checkExistsAndDelete } = require("./utils/checkExistsAndDelete");
 const { postToTwitter } = require("./postToTwitter");
+const { getTMDBMovie } = require("./getTMDBMovie");
 
 const createPost = async () => {
   // Make sure no trailing files or directories exist
@@ -15,20 +14,19 @@ const createPost = async () => {
   await checkExistsAndDelete("doppelganger_images");
   await checkExistsAndDelete("remake_images");
 
-  const foundMovie = getMovie();
-  let actorsCharNames = await getCharactersFromWiki(foundMovie);
+  const foundMovie = await getTMDBMovie();
 
   const allPromises = [];
 
   if (foundMovie) {
+    let actorsCharNames = foundMovie.cast;
     if (actorsCharNames) {
-      actorsCharNames = actorsCharNames
-        .filter((item) => foundMovie.cast.includes(item.actor))
-        .slice(0, 4);
       for (let i = 0; i < actorsCharNames.length; i++) {
         const currentPromise = grabActorImage(
           actorsCharNames[i].actor,
           actorsCharNames[i].character,
+          actorsCharNames[i].gender,
+          actorsCharNames[i].image,
           i
         );
         allPromises.push(currentPromise);

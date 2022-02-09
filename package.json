@@ -20,7 +20,6 @@
     "express": "^4.17.2",
     "font-color-contrast": "^11.1.0",
     "lodash.sample": "^4.2.1",
-    "movies-names": "^1.1.1",
     "node-cron": "^3.0.0",
     "node-themoviedb": "^0.2.8",
     "puppeteer": "^13.1.2",

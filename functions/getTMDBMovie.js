@@ -32,6 +32,14 @@ const getTMDBMovie = async () => {
     maximumPage = 1;
   }
 
+  const pageArr = [];
+
+  for (let i = 1; i <= maximumPage; i++) {
+    pageArr.push(i);
+  }
+
+  const randomPage = sample(pageArr);
+
   const args = {
     query: {
       include_adult: false,
@@ -42,7 +50,7 @@ const getTMDBMovie = async () => {
       // Exclude documentaries and TV movies
       without_genres: "99,10770",
       sort_by: "popularity.desc",
-      page: maximumPage,
+      page: randomPage,
     },
   };
 
@@ -72,8 +80,8 @@ const getTMDBMovie = async () => {
           .slice(0, 4)
           .map((item) => {
             return {
-              name: item.name,
-              character: item.character,
+              actor: item.name.replace(/"/gim, "'"),
+              character: item.character.replace(/"/gim, "'"),
               gender: item.gender === 1 ? "female" : "male",
               image:
                 "https://www.themoviedb.org/t/p/w600_and_h900_bestv2" +
