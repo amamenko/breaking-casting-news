@@ -1,5 +1,7 @@
 const MovieDB = require("node-themoviedb");
 const sample = require("lodash.sample");
+const { tmdbGenres } = require("./arrays/tmdbGenres");
+const { format, parseISO } = require("date-fns");
 require("dotenv").config();
 
 const mdb = new MovieDB(process.env.THE_MOVIE_DB_API_KEY);
@@ -53,8 +55,6 @@ const getTMDBMovie = async () => {
   if (movieResults && movieResults[0]) {
     const randomMovie = sample(movieResults);
 
-    console.log(randomMovie);
-
     if (randomMovie) {
       let movieCast = await mdb.movie
         .getCredits({ pathParameters: { movie_id: randomMovie.id } })
@@ -66,17 +66,38 @@ const getTMDBMovie = async () => {
         movieCast = movieCast.filter(
           (item) => item.known_for_department === "Acting"
         );
-        const top4Actors = movieCast.slice(0, 4).map((item) => {
-          return {
-            name: item.name,
-            character: item.character,
-            gender: item.gender === 1 ? "female" : "male",
-            image:
-              "https://www.themoviedb.org/t/p/w600_and_h900_bestv2" +
-              item.profile_path,
-          };
-        });
-        console.log(top4Actors);
+
+        const top4Actors = movieCast
+          .filter((item) => item.profile_path)
+          .slice(0, 4)
+          .map((item) => {
+            return {
+              name: item.name,
+              character: item.character,
+              gender: item.gender === 1 ? "female" : "male",
+              image:
+                "https://www.themoviedb.org/t/p/w600_and_h900_bestv2" +
+                item.profile_path,
+            };
+          });
+
+        return {
+          title: randomMovie.original_title,
+          year: format(parseISO(randomMovie.release_date), "yyyy"),
+          genres:
+            randomMovie.genre_ids && randomMovie.genre_ids[0]
+              ? randomMovie.genre_ids.map((item) => {
+                  const foundEl = tmdbGenres.find((el) => el.id === item);
+
+                  if (foundEl) {
+                    return foundEl.name;
+                  } else {
+                    return "";
+                  }
+                })
+              : "",
+          cast: top4Actors,
+        };
       }
     } else {
       console.log("No movie found!");

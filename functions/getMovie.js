@@ -7,8 +7,7 @@ const getMovie = () => {
     (movie) =>
       movie.year >= 1960 &&
       movie.cast.length >= 4 &&
-      !movie.genres.includes("Documentary") &&
-      movie.title === "Psycho"
+      !movie.genres.includes("Documentary")
   );
 
   const foundMovie = sample(allMovies);
