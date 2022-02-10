@@ -8,7 +8,7 @@ const mdb = new MovieDB(process.env.THE_MOVIE_DB_API_KEY);
 
 const getTMDBMovie = async () => {
   const allYears = [];
-  for (let i = 1970; i <= new Date().getFullYear() - 2; i++) {
+  for (let i = 1945; i <= new Date().getFullYear() - 2; i++) {
     allYears.push(i);
   }
 
@@ -45,6 +45,10 @@ const getTMDBMovie = async () => {
       include_adult: false,
       include_video: false,
       region: "US",
+      release_date: {
+        gte: `${randomYear}-01-01`,
+        lte: `${randomYear}-12-31`,
+      },
       year: randomYear,
       with_original_language: "en",
       // Exclude documentaries and TV movies
