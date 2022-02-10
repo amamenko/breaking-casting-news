@@ -78,14 +78,12 @@ const postToTwitter = async (
           : apologyArr.length === 1
           ? "IMPORTANT ADDITIONAL UPDATE"
           : apologyArr.length === 2
-          ? "ANOTHER IMPORTANT ADDITIONAL UPDATE"
-          : "YET ANOTHER IMPORTANT ADDITIONAL UPDATE";
+          ? "IMPORTANT THIRD UPDATE"
+          : "IMPORTANT FOURTH UPDATE";
 
       const apologyStatement = `${updateTerms}: ${
         randomMovieStudio.name
-      } has released a statement: “We apologize to the family of ${
-        current.new_actor
-      }. We were unaware at the time we were casting the '${movieTitle}' remake that ${
+      } has released a statement: “We sincerely apologize. We were unaware at the time of casting that ${
         current.new_actor
       } had died${
         current.new_actor_death_year
@@ -186,6 +184,7 @@ const postToTwitter = async (
               console.error(
                 "Something went wrong when trying to post Twitter thread!"
               );
+              console.error(e);
               await checkExistsAndDelete("actor_images");
               await checkExistsAndDelete("doppelganger_images");
               await checkExistsAndDelete("remake_images");
