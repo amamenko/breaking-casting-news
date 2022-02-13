@@ -94,7 +94,9 @@ const getTMDBMovie = async () => {
           });
 
         return {
-          title: randomMovie.original_title,
+          title: randomMovie.title
+            ? randomMovie.title
+            : randomMovie.original_title,
           year: format(parseISO(randomMovie.release_date), "yyyy"),
           genres:
             randomMovie.genre_ids && randomMovie.genre_ids[0]
