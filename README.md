@@ -29,6 +29,17 @@ According to Science.org, [fake news spreads faster than true news on Twitter](h
 
 A [Twitter bot](https://en.wikipedia.org/wiki/Twitter_bot) is a type of bot software that controls a Twitter account via the [Twitter API](https://developer.twitter.com/en/docs/twitter-api) and may autonomously perform such functions as tweeting and re-tweeting. Twitter bots are not necessarily negative as they are sometimes capable of automatically generating interesting or creative content.
 
+<br />
+
+<a href="https://twitter.com/BreakingCasting">
+  <p align="middle">
+    <img src="./assets/Automated Tag.jpg" width="800" />
+  </p>
+</a>
+<br/ >
+
+In February 2022, as reported by [TechCrunch](https://techcrunch.com/), Twitter [officially launched labels](https://techcrunch.com/2022/02/16/twitter-officially-launches-labels-to-identify-the-good-bots/?guccounter=1&guce_referrer=aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS8&guce_referrer_sig=AQAAAB4YUPTVqSTWhC2tUc9EzeyRrovOQeaLA59F8qGY5jQw430b1zfiKvaM-B62jfdutOKbYk4fXXGRVeHoQDDKSZysfVXxorKTIS4hMWjqS3Hi-07DsWF3O_H1fVq5BXT3hUSibgrva6tbx6airHOZ8-fNttV883vybTXJd_epZiSj) to identify "good bots." These labels are publicly available to all automated Twitter account holders and display "a small robot icon... next to the words 'Automated by' followed by the name of the account’s operator." The Twitter bio of the account describes the bot's purpose. Every tweet belonging to the automated account is then marked with an "Automated" label.
+
 ## Functionality
 
 <p align="middle">
@@ -46,6 +57,8 @@ Once the original actors' images have all been downloaded, these images are used
 Each original actor's image is uploaded to [StarByFace](https://starbyface.com/) to attempt to find a similar-looking actor using their neural network. If a potential series of matches is found, a random doppelganger is chosen from the top 5 results. If the original actor's name is among the found matches, that match is filtered out.
 
 Inevitably, some of the doppelgangers that are found will be of famous individuals who are no longer alive. In order to determine whether or not a found match is alive, the individual's Wikipedia page is scraped using [WikiJs](https://www.npmjs.com/package/wikijs). If a date of death is found in the info section, that individual is determined to have passed on. The age of the individual when they died and the cause of death is also acquired if such information is available.
+
+<br />
 
 <p align="middle">
   <img src="./assets/Example_Twitter_Thread_2.jpg" width="407" />
