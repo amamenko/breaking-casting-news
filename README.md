@@ -23,7 +23,6 @@
   </p>
 </p>
 
-
 ## Background
 
 According to Science.org, [fake news spreads faster than true news on Twitter](https://www.science.org/content/article/fake-news-spreads-faster-true-news-twitter-thanks-people-not-bots). A cited research article found that between 2006 ([Twitter's](https://en.wikipedia.org/wiki/Twitter) inception) to 2017, false tweets were 70% more likely to be retweeted than truthful ones. In some cases, these false tweets are made with ill-intent. For example, following the [COVID-19 pandemic](https://en.wikipedia.org/wiki/COVID-19_pandemic), a spotlight had been shone on the rise of [COVID-19 misinformation](https://spectrum.ieee.org/twitter-bots-are-spreading-massive-amounts-of-covid-19-misinformation) due to Twitter bots.
@@ -33,7 +32,7 @@ A [Twitter bot](https://en.wikipedia.org/wiki/Twitter_bot) is a type of bot soft
 ## Functionality
 
 <p align="middle">
-  <img src="./assets/Example_Twitter_Thread_1.png" width="400" />
+  <img src="./assets/Example_Twitter_Thread_1.jpg" width="400" />
 </p>
 <p align="middle"><b>Example 1. A Twitter thread posted by the Breaking Casting News Twitter bot</b></p>
 <br/ >
@@ -49,7 +48,7 @@ Each original actor's image is uploaded to [StarByFace](https://starbyface.com/)
 Inevitably, some of the doppelgangers that are found will be of famous individuals who are no longer alive. In order to determine whether or not a found match is alive, the individual's Wikipedia page is scraped using [WikiJs](https://www.npmjs.com/package/wikijs). If a date of death is found in the info section, that individual is determined to have passed on. The age of the individual when they died and the cause of death is also acquired if such information is available.
 
 <p align="middle">
-  <img src="./assets/Example_Twitter_Thread_2.png" width="407" />
+  <img src="./assets/Example_Twitter_Thread_2.jpg" width="407" />
 </p>
 <p align="middle" padding="20px"><b>Example 2. Another Twitter thread showing selected doppelgangers with original actors</b></p>
 <br />
@@ -66,36 +65,38 @@ If any or all of the found doppelgangers are found to be deceased, a tweet threa
 
 Server deployed via [Heroku](https://www.heroku.com/). Free Heroku dyno kept awake with [UptimeRobot](https://uptimerobot.com/).
 
-
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <!-- CONTACT -->
+
 ## Contact
 
 Avraham (Avi) Mamenko - avimamenko@gmail.com
 
 Project Link: [https://github.com/amamenko/breaking-casting-news](https://github.com/amamenko/breaking-casting-news)
 
-
 <!-- ACKNOWLEDGEMENTS -->
-## Acknowledgements
-* [Twitter](https://twitter.com/)
-* [twitter-api-v2](https://www.npmjs.com/package/twitter-api-v2)
-* [WikiJs](https://www.npmjs.com/package/wikijs)
-* [StarByFace](https://starbyface.com/)
-* [node-cron](https://www.npmjs.com/package/node-cron)
-* [The Movie Database (TMDB) API](https://developers.themoviedb.org/3)
-* [Heroku](https://www.heroku.com/)
-* [UptimeRobot](https://uptimerobot.com/)
-* [node-html-to-image](https://github.com/frinyvonnick/node-html-to-image)
-* [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
 
+## Acknowledgements
+
+- [Twitter](https://twitter.com/)
+- [twitter-api-v2](https://www.npmjs.com/package/twitter-api-v2)
+- [WikiJs](https://www.npmjs.com/package/wikijs)
+- [StarByFace](https://starbyface.com/)
+- [node-cron](https://www.npmjs.com/package/node-cron)
+- [The Movie Database (TMDB) API](https://developers.themoviedb.org/3)
+- [Heroku](https://www.heroku.com/)
+- [UptimeRobot](https://uptimerobot.com/)
+- [node-html-to-image](https://github.com/frinyvonnick/node-html-to-image)
+- [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
 [license-url]: https://github.com/amamenko/breaking-casting-news/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
