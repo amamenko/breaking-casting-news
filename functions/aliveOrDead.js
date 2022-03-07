@@ -7,6 +7,7 @@ const aliveOrDead = async (name) => {
     .then((page) => page.info())
     .then((data) => {
       if (data) {
+        console.log(data);
         let causeOfDeath = data.deathCause
           ? typeof data.deathCause === "string"
             ? data.deathCause.toLowerCase()
@@ -16,7 +17,9 @@ const aliveOrDead = async (name) => {
                 .join(" and ")
           : "";
 
-        const firstWord = causeOfDeath ? causeOfDeath.split(" ")[0] : "";
+        const firstWord = causeOfDeath
+          ? causeOfDeath.split(" ")[0].toLowerCase()
+          : "";
 
         if (firstWord === "murder") {
           causeOfDeath = "murder";
@@ -24,7 +27,7 @@ const aliveOrDead = async (name) => {
           causeOfDeath = "assassination";
         } else if (firstWord === "suicide") {
           causeOfDeath = "suicide";
-        } else if (firstWord === "death") {
+        } else if (firstWord === "death" || firstWord.includes("death")) {
           causeOfDeath = "";
         }
 

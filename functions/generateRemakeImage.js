@@ -4,7 +4,6 @@ const fs = require("fs");
 const { checkFileExists } = require("./utils/checkFileExists");
 const { delayExecution } = require("./utils/delayExecution");
 const randomColor = require("randomcolor");
-const fontColorContrast = require("font-color-contrast").default;
 require("dotenv").config();
 
 const generateRemakeImage = async (
@@ -37,7 +36,6 @@ const generateRemakeImage = async (
     const imageNewDataURI = "data:image/jpeg;base64," + base64ImageNew;
 
     const backgroundColor = randomColor({ luminosity: "light" });
-    const fontColor = fontColorContrast(backgroundColor);
 
     await nodeHtmlToImage({
       output: `./remake_images/image_${index}.png`,
@@ -158,7 +156,7 @@ const generateRemakeImage = async (
             <div>
                 <h1 class="movie_title">"${movieTitle}" (${movieYear}) Remake</h1>
             </div>
-            <div class="character_title" style="background: ${backgroundColor}; color: ${fontColor};">
+            <div class="character_title" style="background: ${backgroundColor}; color: #000;">
                 <h2>"${character.toUpperCase()}"</h2>
             </div>
             <div class="images_container">
