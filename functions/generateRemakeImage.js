@@ -1,5 +1,5 @@
 // This fork temporarily patches issue with sending args to puppeteer instance
-const nodeHtmlToImage = require("@tcortega/node-html-to-image");
+const nodeHtmlToImage = require("node-html-to-image");
 const fs = require("fs");
 const { checkFileExists } = require("./utils/checkFileExists");
 const { delayExecution } = require("./utils/delayExecution");
