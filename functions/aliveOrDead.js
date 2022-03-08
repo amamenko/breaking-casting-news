@@ -30,8 +30,20 @@ const aliveOrDead = async (name) => {
           causeOfDeath = "";
         }
 
+        causeOfDeath = causeOfDeath.replace(/(\baids\b)/gim, "AIDS");
+
+        let dateOfDeath = "";
+
+        if (data.deathDate) {
+          if (data.deathDate.date) {
+            dateOfDeath = format(data.deathDate.date, "yyyy");
+          } else {
+            dateOfDeath = format(data.deathDate, "yyyy");
+          }
+        }
+
         return {
-          deathDate: data.deathDate ? format(data.deathDate.date, "yyyy") : "",
+          deathDate: dateOfDeath,
           deathAge: data.deathDate ? data.deathDate.age : "",
           deathCause: causeOfDeath,
         };
