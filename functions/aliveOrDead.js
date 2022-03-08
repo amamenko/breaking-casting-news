@@ -7,7 +7,6 @@ const aliveOrDead = async (name) => {
     .then((page) => page.info())
     .then((data) => {
       if (data) {
-        console.log(data);
         let causeOfDeath = data.deathCause
           ? typeof data.deathCause === "string"
             ? data.deathCause.toLowerCase()
