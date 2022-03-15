@@ -102,10 +102,7 @@ const getTMDBMovie = async () => {
           title: randomMovie.title
             ? randomMovie.title
             : randomMovie.original_title,
-          year:
-            Math.abs(randomYear, Number(formattedReleaseDate)) >= 10
-              ? randomYear.toString()
-              : formattedReleaseDate,
+          year: Math.min(randomYear, Number(formattedReleaseDate)).toString(),
           genres:
             randomMovie.genre_ids && randomMovie.genre_ids[0]
               ? randomMovie.genre_ids.map((item) => {
