@@ -1,5 +1,5 @@
 const wiki = require("wikijs").default;
-const { format } = require("date-fns");
+const { format, parse, parseISO, intervalToDuration } = require("date-fns");
 
 const aliveOrDead = async (name) => {
   return await wiki()
@@ -30,7 +30,9 @@ const aliveOrDead = async (name) => {
           causeOfDeath = "";
         }
 
-        causeOfDeath = causeOfDeath.replace(/(\baids\b)/gim, "AIDS");
+        causeOfDeath = causeOfDeath
+          .replace(/(\baids\b)/gim, "AIDS")
+          .replace(/\d{4}/gim, "");
 
         let dateOfDeath = "";
 
@@ -45,16 +47,55 @@ const aliveOrDead = async (name) => {
         return {
           deathDate: dateOfDeath,
           deathAge: data.deathDate ? data.deathDate.age : "",
-          deathCause: causeOfDeath,
+          deathCause: causeOfDeath.trim(),
         };
       }
     })
-    .catch(async (e) => {
-      console.log(
-        `Can't determine if ${name} is alive or dead from Wikipedia entry`
-      );
-      console.log(e);
-      return;
+    .catch(async (err) => {
+      return await wiki()
+        .page(name)
+        .then(async (page) => {
+          let summary = await page.summary();
+          const firstOpenParanthesisIndex = summary.indexOf("(");
+          const firstClosedParanethesisIndex = summary.indexOf(")");
+          summary = summary.slice(
+            firstOpenParanthesisIndex + 1,
+            firstClosedParanethesisIndex
+          );
+
+          const dateRegex = /\w{3,9}?\s\d{1,2}?,\s\d{4}?/gim;
+          const foundDates = summary.match(dateRegex);
+
+          if (foundDates.length === 2) {
+            const monthDateYear = (str, form) => {
+              return format(parse(str, "MMMM d, yyyy", new Date()), form);
+            };
+
+            const dateOfBirth = monthDateYear(foundDates[0], "yyyy-MM-dd");
+            const dateOfDeath = monthDateYear(foundDates[1], "yyyy-MM-dd");
+            const yearOfDeath = monthDateYear(foundDates[1], "yyyy");
+            const lifeDuration = intervalToDuration({
+              start: parseISO(dateOfBirth),
+              end: parseISO(dateOfDeath),
+            });
+            const ageAtDeath = lifeDuration.years;
+
+            return {
+              deathDate: yearOfDeath,
+              deathAge: ageAtDeath,
+              deathCause: "",
+            };
+          } else {
+            return;
+          }
+        })
+        .catch(async (e) => {
+          console.log(
+            `Can't determine if ${name} is alive or dead from Wikipedia entry`
+          );
+          console.log(e);
+          return;
+        });
     });
 };
 
