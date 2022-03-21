@@ -1,4 +1,3 @@
-// This fork temporarily patches issue with sending args to puppeteer instance
 const nodeHtmlToImage = require("node-html-to-image");
 const fs = require("fs");
 const { checkFileExists } = require("./utils/checkFileExists");
@@ -129,6 +128,13 @@ const generateRemakeImage = async (
           align-items: center;
           justify-content: center;
         }
+
+        .image_container {
+          min-width: 350px;
+          width: 350px; 
+          margin: 0;
+          padding: 0;
+        }
         
         .original_container h2,
         .new_container h2 {
@@ -140,6 +146,7 @@ const generateRemakeImage = async (
           width: 100%;
           text-align: center;
           font-size: 1.3rem;
+          z-index: 999;
         }
 
         .original_container h2:first-child,
@@ -163,12 +170,16 @@ const generateRemakeImage = async (
                 <div class="original_container">
                     <h2>Originally Played By:</h2>
                     <h2>${originalActor}</h2>
-                    <img src=${imageOrigDataURI} alt="Original actor" />
+                    <div class="image_container">
+                      <img src=${imageOrigDataURI} alt="Original actor" />
+                    </div>
                 </div>
                 <div class="new_container">
                     <h2>Remake Casting:</h2>
                     <h2>${newActor}</h2>
-                    <img src=${imageNewDataURI} alt="New actor" />
+                    <div class="image_container">
+                      <img src=${imageNewDataURI} alt="New actor" />
+                    </div>
                 </div>
             </div>
         </div>

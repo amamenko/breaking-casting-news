@@ -7,6 +7,7 @@ const { downloadFile } = require("./utils/downloadFile");
 const { delayExecution } = require("./utils/delayExecution");
 const { removeLowercase } = require("./utils/removeLowercase");
 const { exec } = require("child_process");
+const { backupGetDoppelganger } = require("./backupGetDoppelganger");
 require("dotenv").config();
 
 puppeteer.use(StealthPlugin());
@@ -23,189 +24,207 @@ const getDoppelganger = async (remakeJSON, fileName, fullName, i) => {
     );
 
     if (foundEntry) {
-      const browser = await puppeteer.launch({
-        args: [
-          "--disable-setuid-sandbox",
-          "--single-process",
-          "--no-sandbox",
-          "--no-zygote",
-        ],
-      });
-      const page = await browser.newPage();
-      page.setDefaultNavigationTimeout(0);
+      const handleDoppelgangerData = async (randomDoppelganger) => {
+        if (randomDoppelganger) {
+          return await downloadFile(
+            randomDoppelganger.image,
+            "doppelganger_images",
+            randomDoppelganger.name.replace(/\s/g, "_")
+          )
+            .then(async () => {
+              foundEntry.new_actor = randomDoppelganger.name;
+              foundEntry.new_image = `${randomDoppelganger.name.replace(
+                /\s/g,
+                "_"
+              )}.jpg`;
 
-      page.on("error", (err) => {
-        reject();
-      });
+              try {
+                const deadOrAliveResult = await aliveOrDead(
+                  randomDoppelganger.name
+                );
 
-      await page.goto("https://starbyface.com", {
-        waitUntil: "networkidle2",
-      });
+                if (deadOrAliveResult) {
+                  if (deadOrAliveResult.deathDate) {
+                    foundEntry.new_actor_dead = true;
+                    foundEntry.new_actor_death_year =
+                      deadOrAliveResult.deathDate
+                        ? deadOrAliveResult.deathDate.replace(/\D/g, "")
+                        : "";
+                  } else {
+                    foundEntry.new_actor_dead = false;
+                  }
 
-      await page.waitForTimeout(5000);
+                  if (deadOrAliveResult.deathAge) {
+                    foundEntry.new_actor_death_age = deadOrAliveResult.deathAge;
+                  } else {
+                    foundEntry.new_actor_death_age = "";
+                  }
 
-      await page.click("button[mode=primary]");
+                  if (deadOrAliveResult.deathCause) {
+                    foundEntry.new_actor_death_cause =
+                      deadOrAliveResult.deathCause;
+                  } else {
+                    foundEntry.new_actor_death_cause = "";
+                  }
+                } else {
+                  foundEntry.new_actor_dead = false;
+                }
 
-      const uploadEl = await page.$("input[type=file]");
-      await uploadEl.uploadFile(fileName);
-      await page.waitForTimeout(30000);
+                resolve();
+              } catch (e) {
+                console.error(e);
+                foundEntry.new_actor_dead = false;
+                reject();
+              }
 
-      const maleList = await page.$$("div[id=candidates] > div[name]");
-      const femaleList = await page.$$("div[id=candidatesFemale] > div[name]");
-
-      const getNameAndImage = async (list) => {
-        const fullListArr = [];
-
-        for (const target of list) {
-          const innerHTML = await page.evaluate((el) => el.innerHTML, target);
-          let name = await page.evaluate(
-            (el) => el.getAttribute("name"),
-            target
-          );
-
-          let splitInnerHTML = innerHTML.split("\n");
-          splitInnerHTML = splitInnerHTML.filter((item) =>
-            item.includes("<img ")
-          );
-
-          const imgTag = splitInnerHTML[0];
-
-          if (imgTag) {
-            let imgSplit = imgTag.split(/src="(.*?)"/gim);
-            imgSplit = imgSplit.filter((item) => item.includes(".com"));
-
-            name = removeLowercase(name);
-
-            if (imgSplit[0]) {
-              fullListArr.push({
-                name,
-                image: imgSplit[0],
-              });
-            }
-          }
+              resolve();
+            })
+            .catch((e) => {
+              console.error(e);
+              reject();
+            });
+        } else {
+          console.log(`No doppelganger found for actor ${fullName}.`);
+          reject();
         }
-
-        return fullListArr;
       };
 
-      const matchedMales = await getNameAndImage(maleList);
-      const matchedFemales = await getNameAndImage(femaleList);
+      try {
+        const browser = await puppeteer.launch({
+          args: [
+            "--disable-setuid-sandbox",
+            "--single-process",
+            "--no-sandbox",
+            "--no-zygote",
+          ],
+        });
+        const page = await browser.newPage();
+        page.setDefaultNavigationTimeout(0);
 
-      const originalActorGender = foundEntry.original_actor_gender;
-      const firstName = fullName.split(" ")[0];
+        page.on("error", (err) => {
+          reject();
+        });
 
-      let genderOfFirstName = "";
+        await page.goto("https://starbyface.com", {
+          waitUntil: "networkidle2",
+        });
 
-      if (originalActorGender) {
-        genderOfFirstName = originalActorGender;
-      } else {
-        genderOfFirstName = await axios(
-          `https://api.genderize.io/?name=${firstName}`
-        )
-          .then((res) => res.data)
-          .then((data) => data.gender);
-      }
+        await page.waitForTimeout(5000);
 
-      let chosenArr = [];
+        await page.click("button[mode=primary]");
 
-      if (genderOfFirstName === "male") {
-        if (matchedMales[0]) {
-          chosenArr = matchedMales;
+        const uploadEl = await page.$("input[type=file]");
+        await uploadEl.uploadFile(fileName);
+        await page.waitForTimeout(30000);
+
+        const maleList = await page.$$("div[id=candidates] > div[name]");
+        const femaleList = await page.$$(
+          "div[id=candidatesFemale] > div[name]"
+        );
+
+        const getNameAndImage = async (list) => {
+          const fullListArr = [];
+
+          for (const target of list) {
+            const innerHTML = await page.evaluate((el) => el.innerHTML, target);
+            let name = await page.evaluate(
+              (el) => el.getAttribute("name"),
+              target
+            );
+
+            let splitInnerHTML = innerHTML.split("\n");
+            splitInnerHTML = splitInnerHTML.filter((item) =>
+              item.includes("<img ")
+            );
+
+            const imgTag = splitInnerHTML[0];
+
+            if (imgTag) {
+              let imgSplit = imgTag.split(/src="(.*?)"/gim);
+              imgSplit = imgSplit.filter((item) => item.includes(".com"));
+
+              name = removeLowercase(name);
+
+              if (imgSplit[0]) {
+                fullListArr.push({
+                  name,
+                  image: imgSplit[0],
+                });
+              }
+            }
+          }
+
+          return fullListArr;
+        };
+
+        const matchedMales = await getNameAndImage(maleList);
+        const matchedFemales = await getNameAndImage(femaleList);
+
+        const originalActorGender = foundEntry.original_actor_gender;
+        const firstName = fullName.split(" ")[0];
+
+        let genderOfFirstName = "";
+
+        if (originalActorGender) {
+          genderOfFirstName = originalActorGender;
         } else {
-          chosenArr = matchedFemales;
+          genderOfFirstName = await axios(
+            `https://api.genderize.io/?name=${firstName}`
+          )
+            .then((res) => res.data)
+            .then((data) => data.gender);
         }
-      } else if (genderOfFirstName === "female") {
-        if (matchedFemales[0]) {
-          chosenArr = matchedFemales;
-        } else {
-          chosenArr = matchedMales;
-        }
-      } else {
-        const genderArr = ["male", "female"];
-        const randomGender = sample(genderArr);
 
-        if (randomGender === "male") {
+        let chosenArr = [];
+
+        if (genderOfFirstName === "male") {
           if (matchedMales[0]) {
             chosenArr = matchedMales;
           } else {
             chosenArr = matchedFemales;
           }
-        } else {
+        } else if (genderOfFirstName === "female") {
           if (matchedFemales[0]) {
             chosenArr = matchedFemales;
           } else {
             chosenArr = matchedMales;
           }
-        }
-      }
+        } else {
+          const genderArr = ["male", "female"];
+          const randomGender = sample(genderArr);
 
-      chosenArr = chosenArr.filter((item) => item.name !== fullName);
-      // Choose from top 3 closest matches
-      chosenArr = chosenArr.slice(0, 3);
-      const randomDoppelganger = sample(chosenArr);
-
-      await browser.close();
-
-      if (randomDoppelganger) {
-        return await downloadFile(
-          randomDoppelganger.image,
-          "doppelganger_images",
-          randomDoppelganger.name.replace(/\s/g, "_")
-        )
-          .then(async () => {
-            foundEntry.new_actor = randomDoppelganger.name;
-            foundEntry.new_image = `${randomDoppelganger.name.replace(
-              /\s/g,
-              "_"
-            )}.jpg`;
-
-            try {
-              const deadOrAliveResult = await aliveOrDead(
-                randomDoppelganger.name
-              );
-
-              if (deadOrAliveResult) {
-                if (deadOrAliveResult.deathDate) {
-                  foundEntry.new_actor_dead = true;
-                  foundEntry.new_actor_death_year = deadOrAliveResult.deathDate
-                    ? deadOrAliveResult.deathDate.replace(/\D/g, "")
-                    : "";
-                } else {
-                  foundEntry.new_actor_dead = false;
-                }
-
-                if (deadOrAliveResult.deathAge) {
-                  foundEntry.new_actor_death_age = deadOrAliveResult.deathAge;
-                } else {
-                  foundEntry.new_actor_death_age = "";
-                }
-
-                if (deadOrAliveResult.deathCause) {
-                  foundEntry.new_actor_death_cause =
-                    deadOrAliveResult.deathCause;
-                } else {
-                  foundEntry.new_actor_death_cause = "";
-                }
-              } else {
-                foundEntry.new_actor_dead = false;
-              }
-
-              resolve();
-            } catch (e) {
-              console.error(e);
-              foundEntry.new_actor_dead = false;
-              reject();
+          if (randomGender === "male") {
+            if (matchedMales[0]) {
+              chosenArr = matchedMales;
+            } else {
+              chosenArr = matchedFemales;
             }
+          } else {
+            if (matchedFemales[0]) {
+              chosenArr = matchedFemales;
+            } else {
+              chosenArr = matchedMales;
+            }
+          }
+        }
 
-            resolve();
-          })
-          .catch((e) => {
-            console.error(e);
-            reject();
-          });
-      } else {
-        console.log(`No doppelganger found for actor ${fullName}.`);
-        reject();
+        chosenArr = chosenArr.filter((item) => item.name !== fullName);
+        // Choose from top 3 closest matches
+        chosenArr = chosenArr.slice(0, 3);
+        const randomDoppelganger = sample(chosenArr);
+
+        handleDoppelgangerData(randomDoppelganger);
+
+        await browser.close();
+      } catch (e) {
+        console.log(
+          `Received error from StarByFace for ${fullName}.\nTrying backup face recognition source!`
+        );
+        const backupDoppelganger = await backupGetDoppelganger(
+          fileName,
+          fullName
+        );
+        handleDoppelgangerData(backupDoppelganger);
       }
     } else {
       console.log(`No matching found entry was found!`);

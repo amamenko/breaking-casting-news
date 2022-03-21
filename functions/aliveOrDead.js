@@ -17,7 +17,7 @@ const aliveOrDead = async (name) => {
         const dateRegex = /\w{3,9}?\s\d{1,2}?,\s\d{4}?/gim;
         const foundDates = summary.match(dateRegex);
 
-        if (foundDates.length === 2) {
+        if (foundDates && foundDates.length === 2) {
           const monthDateYear = (str, form) => {
             return format(parse(str, "MMMM d, yyyy", new Date()), form);
           };
@@ -47,7 +47,6 @@ const aliveOrDead = async (name) => {
     .then((page) => page.info())
     .then((data) => {
       if (data) {
-        console.log(data);
         let causeOfDeath = data.deathCause
           ? typeof data.deathCause === "string"
             ? data.deathCause.toLowerCase()
