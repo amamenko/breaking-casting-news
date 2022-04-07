@@ -45,11 +45,15 @@ const getDoppelganger = async (remakeJSON, fileName, fullName, i) => {
 
                 if (deadOrAliveResult) {
                   if (deadOrAliveResult.deathDate) {
-                    foundEntry.new_actor_dead = true;
-                    foundEntry.new_actor_death_year =
-                      deadOrAliveResult.deathDate
-                        ? deadOrAliveResult.deathDate.replace(/\D/g, "")
-                        : "";
+                    const deathYear = deadOrAliveResult.deathDate
+                      ? deadOrAliveResult.deathDate.replace(/\D/g, "")
+                      : "";
+
+                    // Not to go too far back in time
+                    if (Number(deathYear) >= 1920) {
+                      foundEntry.new_actor_dead = true;
+                      foundEntry.new_actor_death_year = deathYear;
+                    }
                   } else {
                     foundEntry.new_actor_dead = false;
                   }
