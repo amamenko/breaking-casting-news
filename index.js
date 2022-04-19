@@ -54,6 +54,10 @@ cron.schedule("*/10 */4 * * *", async () => {
   }
 });
 
+app.get("/", (req, res) => {
+  res.send("Breaking Casting News is up and running!");
+});
+
 app.listen(port, () => {
   console.log(`Listening on port ${port}...`);
 });
