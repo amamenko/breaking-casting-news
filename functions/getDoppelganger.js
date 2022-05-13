@@ -115,7 +115,19 @@ const getDoppelganger = async (remakeJSON, fileName, fullName, i) => {
 
         await page.waitForTimeout(5000);
 
-        await page.click("button[mode=primary]");
+        try {
+          await page.click("button[mode=secondary]");
+        } catch (e) {
+          console.error("No secondary mode button found!");
+        }
+
+        await page.waitForTimeout(5000);
+
+        try {
+          await page.click("button[mode=primary]");
+        } catch (e) {
+          console.error("No primary mode button found!");
+        }
 
         const uploadEl = await page.$("input[type=file]");
         await uploadEl.uploadFile(fileName);
