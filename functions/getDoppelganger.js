@@ -224,7 +224,23 @@ const getDoppelganger = async (remakeJSON, fileName, fullName, i) => {
           }
         }
 
-        chosenArr = chosenArr.filter((item) => item.name !== fullName);
+        let splitArr = fullName.split(" ");
+        splitArr = splitArr.map((el) => el.toLowerCase());
+
+        chosenArr = chosenArr.filter((item) => {
+          let itemSplitArr = item.name.split(" ");
+          itemSplitArr = itemSplitArr.map((el) => el.toLowerCase());
+
+          if (item.name !== fullName) {
+            if (itemSplitArr.some((el) => splitArr.includes(el))) {
+              return false;
+            } else {
+              return true;
+            }
+          } else {
+            return false;
+          }
+        });
         // Choose from top 3 closest matches
         chosenArr = chosenArr.slice(0, 3);
         const randomDoppelganger = sample(chosenArr);
