@@ -44,7 +44,6 @@ const getTMDBMovie = async () => {
     query: {
       include_adult: false,
       include_video: false,
-      region: "US",
       release_date: {
         gte: `${randomYear}-01-01`,
         lte: `${randomYear}-12-31`,
