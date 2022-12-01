@@ -252,6 +252,7 @@ const getDoppelganger = async (remakeJSON, fileName, fullName, i) => {
         console.log(
           `Received error from StarByFace for ${fullName}.\nTrying backup face recognition source!`
         );
+        console.error(e);
         const backupDoppelganger = await backupGetDoppelganger(
           fileName,
           fullName
