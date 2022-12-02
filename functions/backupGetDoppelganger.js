@@ -8,6 +8,10 @@ puppeteer.use(StealthPlugin());
 const backupGetDoppelganger = async (fileName, fullName) => {
   try {
     const browser = await puppeteer.launch({
+      executablePath:
+        process.env.NODE_ENV === "production"
+          ? process.env.PUPPETEER_EXECUTABLE_PATH
+          : undefined,
       args: [
         "--disable-setuid-sandbox",
         "--single-process",
