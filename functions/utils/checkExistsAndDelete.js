@@ -6,16 +6,20 @@ const checkExistsAndDelete = async (filename) => {
   const fileExists = await checkFileExists(filename);
 
   if (fileExists) {
-    fs.rm(
-      filename,
-      {
-        recursive: true,
-        force: true,
-      },
-      () => {
-        console.log(`${filename} file deleted!`);
+    fs.lstat(filename, (err, stats) => {
+      if (err) console.error(err);
+      if (stats.isFile()) {
+        fs.unlink(filename, () => {
+          console.log(`${filename} file deleted!`);
+        });
+      } else {
+        if (stats.isDirectory()) {
+          fs.rmdir(filename, () => {
+            console.log(`${filename} directory deleted!`);
+          });
+        }
       }
-    );
+    });
   }
 };
 
