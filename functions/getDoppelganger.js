@@ -94,6 +94,7 @@ const getDoppelganger = async (remakeJSON, fileName, fullName, i) => {
       };
 
       try {
+        console.log("Launching Puppeteer process now...");
         const browser = await puppeteer.launch({
           executablePath:
             process.env.NODE_ENV === "production"
@@ -107,17 +108,18 @@ const getDoppelganger = async (remakeJSON, fileName, fullName, i) => {
           ],
         });
         const page = await browser.newPage();
+        console.log("Successfully launched new Puppeteer page!");
         await page.setDefaultNavigationTimeout(0);
         page.on("error", (err) => {
           reject();
         });
-
+        console.log("Visiting URL now...");
         await page.goto("https://starbyface.com", {
           waitUntil: "domcontentloaded",
         });
 
         await page.waitForTimeout(5000);
-
+        console.log("Successfully visited URL!");
         try {
           await page.click("button[mode=secondary]");
         } catch (e) {

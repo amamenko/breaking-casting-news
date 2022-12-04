@@ -9,6 +9,7 @@ RUN apk update && \
     py3-pip \
     make \
     g++ \
+    dumb-init \
     chromium \
     nss \
     freetype \
@@ -24,4 +25,5 @@ COPY package*.json ./
 RUN npm install
 COPY . ./ 
 EXPOSE 4000
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD [ "npm", "start" ]
