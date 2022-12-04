@@ -107,14 +107,13 @@ const getDoppelganger = async (remakeJSON, fileName, fullName, i) => {
           ],
         });
         const page = await browser.newPage();
-        page.setDefaultNavigationTimeout(0);
-
+        await page.setDefaultNavigationTimeout(0);
         page.on("error", (err) => {
           reject();
         });
 
         await page.goto("https://starbyface.com", {
-          waitUntil: "networkidle2",
+          waitUntil: "domcontentloaded",
         });
 
         await page.waitForTimeout(5000);
@@ -135,6 +134,7 @@ const getDoppelganger = async (remakeJSON, fileName, fullName, i) => {
 
         const uploadEl = await page.$("input[type=file]");
         await uploadEl.uploadFile(fileName);
+
         await page.waitForTimeout(30000);
 
         const maleList = await page.$$("div[id=candidates] > div[name]");

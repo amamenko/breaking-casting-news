@@ -41,39 +41,9 @@ const generateRemakeImage = async (
       html: `<html>
       <head>
         <style>
-        @font-face {
-          font-family: Gonzi;
-          font-weight: 300;
-          src: url("fonts/GonziExpanded-Thin.otf");
-        }
-        
-        @font-face {
-          font-family: Gonzi;
-          font-weight: 500;
-          src: url("fonts/GonziExpanded-Light.otf");
-        }
-        
-        @font-face {
-          font-family: Gonzi;
-          font-weight: 600;
-          src: url("fonts/GonziExpanded-Regular.otf");
-        }
-        
-        @font-face {
-          font-family: Gonzi;
-          font-weight: 800;
-          src: url("fonts/GonziExpanded-Bold.otf");
-        }
-        
-        @font-face {
-          font-family: Gonzi;
-          font-weight: 900;
-          src: url("fonts/GonziExpanded-Black.otf");
-        }
-        
         body,
         html {
-          font-family: Gonzi, sans-serif;
+          font-family: Verdana, sans-serif;
         }
         
         body {
@@ -188,7 +158,10 @@ const generateRemakeImage = async (
       puppeteerArgs,
     })
       .then(() => resolve())
-      .catch((e) => reject(e));
+      .catch((e) => {
+        console.error(e);
+        reject(e);
+      });
   });
 };
 
