@@ -93,20 +93,21 @@ const getDoppelganger = async (remakeJSON, fileName, fullName, i) => {
         }
       };
 
+      console.log("Launching Puppeteer process now...");
+      const browser = await puppeteer.launch({
+        executablePath:
+          process.env.NODE_ENV === "production"
+            ? process.env.PUPPETEER_EXECUTABLE_PATH
+            : undefined,
+        args: [
+          "--disable-setuid-sandbox",
+          "--single-process",
+          "--no-sandbox",
+          "--no-zygote",
+        ],
+      });
+
       try {
-        console.log("Launching Puppeteer process now...");
-        const browser = await puppeteer.launch({
-          executablePath:
-            process.env.NODE_ENV === "production"
-              ? process.env.PUPPETEER_EXECUTABLE_PATH
-              : undefined,
-          args: [
-            "--disable-setuid-sandbox",
-            "--single-process",
-            "--no-sandbox",
-            "--no-zygote",
-          ],
-        });
         const page = await browser.newPage();
         console.log("Successfully launched new Puppeteer page!");
         await page.setDefaultNavigationTimeout(0);
@@ -115,7 +116,7 @@ const getDoppelganger = async (remakeJSON, fileName, fullName, i) => {
         });
         console.log("Visiting URL now...");
         await page.goto("https://starbyface.com", {
-          waitUntil: "domcontentloaded",
+          timeout: 0,
         });
 
         await page.waitForTimeout(5000);
@@ -252,8 +253,6 @@ const getDoppelganger = async (remakeJSON, fileName, fullName, i) => {
         const randomDoppelganger = sample(chosenArr);
 
         handleDoppelgangerData(randomDoppelganger);
-
-        await browser.close();
       } catch (e) {
         console.log(
           `Received error from StarByFace for ${fullName}.\nTrying backup face recognition source!`
@@ -264,6 +263,8 @@ const getDoppelganger = async (remakeJSON, fileName, fullName, i) => {
           fullName
         );
         handleDoppelgangerData(backupDoppelganger);
+      } finally {
+        await browser.close();
       }
     } else {
       console.log(`No matching found entry was found!`);

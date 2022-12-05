@@ -6,24 +6,24 @@ require("dotenv").config();
 puppeteer.use(StealthPlugin());
 
 const backupGetDoppelganger = async (fileName, fullName) => {
+  const browser = await puppeteer.launch({
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : undefined,
+    args: [
+      "--disable-setuid-sandbox",
+      "--single-process",
+      "--no-sandbox",
+      "--no-zygote",
+    ],
+  });
   try {
-    const browser = await puppeteer.launch({
-      executablePath:
-        process.env.NODE_ENV === "production"
-          ? process.env.PUPPETEER_EXECUTABLE_PATH
-          : undefined,
-      args: [
-        "--disable-setuid-sandbox",
-        "--single-process",
-        "--no-sandbox",
-        "--no-zygote",
-      ],
-    });
     const page = await browser.newPage();
     page.setDefaultNavigationTimeout(0);
 
     await page.goto("http://www.pictriev.com/", {
-      waitUntil: "networkidle2",
+      timeout: 0,
     });
 
     await page.waitForTimeout(5000);
@@ -54,13 +54,13 @@ const backupGetDoppelganger = async (fileName, fullName) => {
     fullArr = fullArr.slice(0, 3);
     const randomDoppelganger = sample(fullArr);
 
-    await browser.close();
-
     return randomDoppelganger;
   } catch (e) {
     console.log(e);
     console.log("No doppelganger found using www.pictriev.com!");
     return;
+  } finally {
+    await browser.close();
   }
 };
 
