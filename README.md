@@ -76,7 +76,9 @@ If any or all of the found doppelgangers are found to be deceased, a tweet threa
 
 ## Deployment
 
-Server deployed via [Heroku](https://www.heroku.com/). Free Heroku dyno kept awake with [UptimeRobot](https://uptimerobot.com/).
+The server was initially deployed via [Heroku](https://www.heroku.com/). Following Heroku's [shutting down of free dynos](https://blog.heroku.com/next-chapter) on November 28th, 2022, the server was re-deployed using [Render](https://render.com/). The free Render service was kept awake with [UptimeRobot](https://uptimerobot.com/).
+
+Render allows services to be spun up using [Docker images](https://render.com/docs/docker). This was necessary for this project to be deployed on Render due to the use of Puppeteer. Heroku has its own [Puppeteer buildpack](https://elements.heroku.com/buildpacks/jontewks/puppeteer-heroku-buildpack), which was simple enough to set up. Since Render does not have any services with Chromium pre-installed (required for Puppeteer), Chromium had to be installed separately on the Docker image and used to overwrite Puppeteer's default Chromium path.
 
 <!-- LICENSE -->
 
@@ -102,6 +104,7 @@ Project Link: [https://github.com/amamenko/breaking-casting-news](https://github
 - [StarByFace](https://starbyface.com/)
 - [node-cron](https://www.npmjs.com/package/node-cron)
 - [The Movie Database (TMDB) API](https://developers.themoviedb.org/3)
+- [Render](https://render.com/)
 - [Heroku](https://www.heroku.com/)
 - [UptimeRobot](https://uptimerobot.com/)
 - [node-html-to-image](https://github.com/frinyvonnick/node-html-to-image)
