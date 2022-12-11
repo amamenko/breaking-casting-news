@@ -20,7 +20,7 @@
     "node-cron": "^3.0.0",
     "node-html-to-image": "^3.2.4",
     "node-themoviedb": "^0.2.8",
-    "puppeteer": "^13.0.1",
+    "puppeteer": "^19.4.0",
     "puppeteer-extra": "^3.3.4",
     "puppeteer-extra-plugin-stealth": "^2.11.1",
     "randomcolor": "^0.6.2",
