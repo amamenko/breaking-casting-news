@@ -1,29 +1,12 @@
-FROM node:16-alpine
+FROM zenika/alpine-chrome:with-node
 
-WORKDIR /usr/src/app
-
-# Installs latest Chromium (92) package.
-RUN apk update && \
-    apk upgrade && \ 
-    apk add --no-cache \
-    py3-pip \
-    make \
-    g++ \
-    dumb-init \
-    chromium \
-    nss \
-    freetype \
-    harfbuzz \
-    ca-certificates \
-    ttf-freefont
-
-# Tell Puppeteer to skip installing Chrome. We'll be using the installed package.
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+WORKDIR /usr/src/app
 
-COPY package*.json ./
+COPY --chown=chrome package.json package-lock.json ./
 RUN npm install
-COPY . ./ 
+COPY --chown=chrome . ./ 
 EXPOSE 4000
-ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+ENTRYPOINT ["tini", "--"]
 CMD [ "npm", "start" ]

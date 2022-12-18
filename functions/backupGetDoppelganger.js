@@ -1,5 +1,6 @@
 const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+const { executablePath } = require("puppeteer");
 const sample = require("lodash.sample");
 require("dotenv").config();
 
@@ -7,16 +8,13 @@ puppeteer.use(StealthPlugin());
 
 const backupGetDoppelganger = async (fileName, fullName) => {
   const browser = await puppeteer.launch({
-    executablePath:
-      process.env.NODE_ENV === "production"
-        ? process.env.PUPPETEER_EXECUTABLE_PATH
-        : undefined,
     args: [
       "--disable-setuid-sandbox",
       "--single-process",
       "--no-sandbox",
       "--no-zygote",
     ],
+    executablePath: executablePath(),
   });
   try {
     const page = await browser.newPage();

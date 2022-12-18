@@ -8,6 +8,7 @@ const { delayExecution } = require("./utils/delayExecution");
 const { removeLowercase } = require("./utils/removeLowercase");
 const { exec } = require("child_process");
 const { backupGetDoppelganger } = require("./backupGetDoppelganger");
+const { executablePath } = require("puppeteer");
 require("dotenv").config();
 
 puppeteer.use(StealthPlugin());
@@ -95,16 +96,13 @@ const getDoppelganger = async (remakeJSON, fileName, fullName, i) => {
 
       console.log("Launching Puppeteer process now...");
       const browser = await puppeteer.launch({
-        executablePath:
-          process.env.NODE_ENV === "production"
-            ? process.env.PUPPETEER_EXECUTABLE_PATH
-            : undefined,
         args: [
           "--disable-setuid-sandbox",
           "--single-process",
           "--no-sandbox",
           "--no-zygote",
         ],
+        executablePath: executablePath(),
       });
 
       try {
