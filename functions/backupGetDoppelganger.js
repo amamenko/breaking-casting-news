@@ -14,7 +14,10 @@ const backupGetDoppelganger = async (fileName, fullName) => {
       "--no-sandbox",
       "--no-zygote",
     ],
-    executablePath: executablePath(),
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : executablePath(),
   });
   try {
     const page = await browser.newPage();
