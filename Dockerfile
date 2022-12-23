@@ -1,12 +1,8 @@
-FROM zenika/alpine-chrome:with-node
+FROM ghcr.io/puppeteer/puppeteer:16.1.0
 
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 WORKDIR /usr/src/app
 
-COPY --chown=chrome package.json package-lock.json ./
-RUN npm install
-COPY --chown=chrome . ./ 
-EXPOSE 4000
-ENTRYPOINT ["tini", "--"]
-CMD [ "npm", "start" ]
+COPY package*.json ./ 
+RUN npm ci --omit=dev
+COPY . . 
+ENTRYPOINT ["npm", "start"]

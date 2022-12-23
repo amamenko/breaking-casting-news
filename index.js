@@ -64,8 +64,8 @@ app.listen(port, () => {
 });
 
 if (process.env.NODE_ENV === "production") {
-  // Redeploy render service at: 3:15 AM, 7:15 AM, 11:15 AM, 3:00 PM, 7:00 PM, and 11:00 PM
-  cron.schedule("15 3,7,11,15,19,23 * * *", () => {
+  // Redeploy render service at: 2:15 AM, 6:15 AM, 10:15 AM, 2:15 PM, 6:15 PM, and 10:15 PM
+  cron.schedule("15 2,6,10,14,18,22 * * *", () => {
     deployToRender();
   });
 }
