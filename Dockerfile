@@ -8,4 +8,4 @@ WORKDIR /usr/src/app
 COPY package*.json ./ 
 RUN npm ci --omit=dev
 COPY . . 
-ENTRYPOINT ["npm", "start"]
+CMD [ "node", "index.js" ]
