@@ -16,8 +16,8 @@ const client = new TwitterApi({
   accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
 });
 
-// Try to post every 10 minutes past every 4th hour
-cron.schedule("*/10 */4 * * *", async () => {
+// Try to post every 15 minutes past every 4th hour
+cron.schedule("*/15 */4 * * *", async () => {
   const tweetsOfBCN = await client.v2.userTimeline("1488719370692050944", {
     exclude: "replies",
     "tweet.fields": ["created_at"],
