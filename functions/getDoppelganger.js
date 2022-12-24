@@ -18,7 +18,8 @@ const getDoppelganger = async (remakeJSON, fileName, fullName, i) => {
     // Kill all leftover Puppeteer processes
     exec("pkill -9 -f puppeteer");
 
-    await delayExecution(i * 120000);
+    // Delay every invocation by an additional 2 minutes and 15 seconds
+    await delayExecution(i * 135000);
 
     const foundEntry = remakeJSON.find(
       (item) => item.original_actor === fullName
