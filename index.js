@@ -22,7 +22,6 @@ cron.schedule("*/50 0,1,4,5,8,9,12,13,16,17,20,21 * * *", async () => {
     exclude: "replies",
     "tweet.fields": ["created_at"],
   });
-
   if (tweetsOfBCN) {
     if (tweetsOfBCN._realData) {
       if (tweetsOfBCN._realData.data) {
@@ -64,8 +63,8 @@ app.listen(port, () => {
 });
 
 if (process.env.NODE_ENV === "production") {
-  // Redeploy render service at: 2:15 AM, 6:15 AM, 10:15 AM, 2:15 PM, 6:15 PM, and 10:15 PM
-  cron.schedule("15 2,6,10,14,18,22 * * *", () => {
+  // Redeploy render service at: 3:15 AM, 7:15 AM, 11:15 AM, 3:15 PM, 7:15 PM, and 11:15 PM
+  cron.schedule("15 3,7,11,15,19,23 * * *", () => {
     deployToRender();
   });
 }
