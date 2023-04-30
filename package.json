@@ -24,7 +24,7 @@
     "puppeteer-extra": "^3.3.4",
     "puppeteer-extra-plugin-stealth": "^2.11.1",
     "randomcolor": "^0.6.2",
-    "twitter-api-v2": "^1.10.0",
+    "twitter-api-v2": "^1.14.2",
     "wget-improved": "^3.2.1",
     "wikijs": "^6.3.3"
   }
