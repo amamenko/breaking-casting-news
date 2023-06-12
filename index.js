@@ -1,19 +1,11 @@
 const express = require("express");
 const app = express();
-const { createPost } = require("./functions/createPost");
-const { TwitterApi } = require("twitter-api-v2"); 
+const { createPost } = require("./functions/createPost"); 
 const cron = require("node-cron");
 const { deployToRender } = require("./functions/deployToRender");
 require("dotenv").config();
 
-const port = process.env.PORT || 4000;
-
-const client = new TwitterApi({
-  appKey: process.env.TWITTER_API_KEY,
-  appSecret: process.env.TWITTER_API_KEY_SECRET,
-  accessToken: process.env.TWITTER_ACCESS_TOKEN,
-  accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
-});
+const port = process.env.PORT || 4000; 
 
 // Try to post every 4 hours
 cron.schedule("0 */4 * * *", async () => {
